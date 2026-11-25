@@ -45,3 +45,41 @@ for col in cat_cols:
 
 df_resumen_cat = pd.DataFrame(resumen_cat).set_index('Variable')
 print(df_resumen_cat)
+
+# 5. Visualización exploratoria de los datos
+sns.set_theme(style="whitegrid")
+fig, axes = plt.subplots(2, 2, figsize=(15, 11))
+fig.suptitle('Análisis Exploratorio de Vivienda Protegida en España (journalist.csv)', fontsize=16, fontweight='bold', y=0.98)
+
+# Gráfico 1: Evolución anual del total de viviendas ('value' agrupado por 'year')
+viviendas_por_anio = df.groupby('year')['value'].sum()
+axes[0, 0].plot(viviendas_por_anio.index, viviendas_por_anio.values, color='#1f77b4', linewidth=2.2)
+axes[0, 0].fill_between(viviendas_por_anio.index, viviendas_por_anio.values, color='#1f77b4', alpha=0.15)
+axes[0, 0].set_title('Evolución anual del total de viviendas protegidas', fontsize=12, fontweight='bold')
+axes[0, 0].set_xlabel('Año')
+axes[0, 0].set_ylabel('Total de viviendas')
+
+# Gráfico 2: Top 10 Comunidades Autónomas por número de registros
+top_ccaa = df['ccaa'].value_counts().head(10)
+sns.barplot(x=top_ccaa.values, y=top_ccaa.index, ax=axes[0, 1], palette='viridis')
+axes[0, 1].set_title('Top 10 Comunidades Autónomas (por nº de registros)', fontsize=12, fontweight='bold')
+axes[0, 1].set_xlabel('Número de registros')
+axes[0, 1].set_ylabel('')
+
+# Gráfico 3: Distribución según el tipo de promotor
+promotores = df['promotor'].value_counts()
+sns.barplot(x=promotores.index, y=promotores.values, ax=axes[1, 0], palette='Set2')
+axes[1, 0].set_title('Registros por tipo de promotor', fontsize=12, fontweight='bold')
+axes[1, 0].set_xlabel('Tipo de promotor')
+axes[1, 0].set_ylabel('Número de registros')
+axes[1, 0].tick_params(axis='x', rotation=15)
+
+# Gráfico 4: Distribución de 'value' (escala logarítmica para apreciar valores extremos)
+sns.histplot(df[df['value'] > 0]['value'], bins=35, log_scale=True, ax=axes[1, 1], color='#ff7f0e', kde=True)
+axes[1, 1].set_title('Distribución de viviendas por registro (escala logarítmica)', fontsize=12, fontweight='bold')
+axes[1, 1].set_xlabel('Número de viviendas (escala log)')
+axes[1, 1].set_ylabel('Frecuencia')
+
+plt.tight_layout(rect=[0, 0, 1, 0.95])
+plt.savefig('analisis_exploratorio.png', dpi=300)
+plt.show()
